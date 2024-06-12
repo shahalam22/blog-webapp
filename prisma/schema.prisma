@@ -1,0 +1,97 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  hashedPassword String?
+  email          String   @unique
+  emailVerified  DateTime?
+  image          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  accounts       Account[] // Added to reflect the relationship
+  sessions       Session[] // Added to reflect the relationship
+  comments       Comment[]
+  posts          Post[]
+
+  @@map("user")
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  token_type        String?
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  id_token          String? @db.String
+  scope             String?
+  session_state     String?
+  expires_at        Int?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+
+  @@unique([provider, providerAccountId])
+  @@map("account")
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Category {
+  id           String   @id @default(cuid()) @map("_id")
+  slug         String   @unique
+  title        String
+  img          String?
+  Posts        Post[]
+}
+
+model Post {
+  id           String   @id @default(cuid()) @map("_id")
+  slug         String   @unique
+  title        String
+  desc         String
+  img          String?
+  views        Int      @default(0)
+  createdAt    DateTime  @default(now())
+  
+  cat          Category @relation(fields: [catSlug], references: [slug])
+  catSlug      String  
+
+  user         User     @relation(fields: [userEmail], references: [email])
+  userEmail    String   
+
+  comments     Comment[]
+}
+
+model Comment {
+  id           String   @id @default(cuid()) @map("_id")
+  desc         String
+  createdAt    DateTime  @default(now())
+  
+  user         User     @relation(fields: [userEmail], references: [email])
+  userEmail    String   
+  
+  post         Post     @relation(fields: [postSlug], references: [slug])
+  postSlug     String 
+}
+
