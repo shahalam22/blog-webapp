@@ -3,12 +3,16 @@
 import React, { useEffect, useState } from 'react'
 import styles from './write.module.css'
 import Image from 'next/image'
-import ReactQuill from 'react-quill';
+// import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.bubble.css';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { app } from '@/utils/firebase';
+import dynamic from 'next/dynamic';
+
+
+const ReactQuill = dynamic(() => import('react-quill'), {ssr: false});
 
 
 function WritePage() {
@@ -21,40 +25,43 @@ function WritePage() {
   const [media, setMedia] = useState("");
   const [value, setValue] = useState("");
   const [title, setTitle] = useState("");
-  const [catSlug, setCatSlug] = useState("");
+  const [catSlug, setCatSlug] = useState("travel");
   
   useEffect(()=>{
-    const storage = getStorage(app);
-    const upload = () => {
-      const name = new Date().getTime + file.name;
-      const storageRef = ref(storage, name);
+    if(file){
+      const storage = getStorage(app);
+      const upload = () => {
+        const name = new Date().getTime + file.name;
+        const storageRef = ref(storage, name);
 
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on('state_changed', 
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
-          switch (snapshot.state) {
-            case 'paused':
-              console.log('Upload is paused');
-              break;
-            case 'running':
-              console.log('Upload is running');
-              break;
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        uploadTask.on('state_changed', 
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+            switch (snapshot.state) {
+              case 'paused':
+                console.log('Upload is paused');
+                break;
+              case 'running':
+                console.log('Upload is running');
+                break;
+            }
+          }, 
+          (error) => {
+            // Handle unsuccessful uploads
+            console.error('Upload failed', error);
+          }, 
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              setMedia(downloadURL)
+            });
           }
-        }, 
-        (error) => {
-          // Handle unsuccessful uploads
-        }, 
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setMedia(downloadURL)
-          });
-        }
-      );
-    }
+        );
+      }
 
-    file && upload;
+      upload();
+    }
   }, [file])
 
   if(status === "loading"){
@@ -67,6 +74,7 @@ function WritePage() {
 
   if(status === "unauthenticated"){
       router.push("/");
+      return null;
   }
 
 
