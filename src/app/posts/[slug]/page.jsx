@@ -7,7 +7,7 @@ import Comments from '@/components/comments/Comments'
 const getData = async (slug) => {
     const res = await fetch(
         // `http://localhost:3000/api/posts/${slug}`,
-        `/api/posts/${slug}`,
+        `https://golden-raindrop-64d608.netlify.app/api/posts/${slug}`,
         {
             cache: "no-store",
         }
