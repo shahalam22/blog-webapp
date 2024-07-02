@@ -6,7 +6,7 @@ import Image from 'next/image'
 
 const getData = async () => {
   // const res = await fetch("http:localhost:3000/api/categories", {
-  const res = await fetch("https://golden-raindrop-64d608.netlify.app/api/categories", {
+  const res = await fetch("https://dailydev-blog-saa21.netlify.app/api/categories", {
     cache: "no-store"
   });
 
