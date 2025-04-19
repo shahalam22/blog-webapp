@@ -39,8 +39,8 @@ The application is built using modern web technologies and is optimized for a se
 | React      | Frontend library for creating interactive user interfaces |
 | Node.js    | Runtime environment for the application |
 | next/font  | Font optimization (e.g., Inter font) |
-| Database   | (To be confirmed; likely MongoDB or PostgreSQL for storing user data and blog posts) |
-| Authentication | (To be confirmed; possibly JWT or NextAuth.js for user authentication) |
+| Database   | PostgreSQL with Prisma ORM for storing user data and blog posts |
+| Authentication | JWT for user authentication) |
 
 *Note: The exact list of technologies may vary; please refer to the project's codebase for details.*
 
